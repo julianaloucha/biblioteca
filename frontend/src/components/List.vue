@@ -1,68 +1,56 @@
 <template>
-<main>
+<main class="main">
+  <header>botões edit user</header>
   <div class="row">
-    <div id="monitorias-disponiveis" class="columnleft">
-        <h1>Monitorias Disponíveis</h1>
-
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Disciplina</th>
-              <th>Data</th>
-              <th>Horário</th>
-              <th>Local</th>
-            </tr>
-          </thead>
-          <tbody>  
-            <tr v-for="monitoria in allMonitorias" :key="monitoria._id">
-              <td>{{ monitoria.disciplina }}</td>
-              <td>{{ monitoria.date }}</td>
-              <td>{{ monitoria.time }}</td>
-              <td>{{ monitoria.place }}</td>
-            </tr>        
-          </tbody>
-        </table>
-    </div>
-    <div class="columnright">
-      <h2>Oferecer Monitoria</h2>
-      <form @submit.prevent="addMonitoria">
-        <input type="text" v-model="disciplina" placeholder="Disciplina da monitoria" required />
-        <input type="date" v-model="date" placeholder="Data da monitoria" required />
-        <input type="time" v-model="time" placeholder="Horário da monitoria" required />
-        <input type="text" v-model="place" placeholder="Local da monitoria" required />
-        <button type="submit">Adicionar</button>
-      </form>
+    <div class="columnleft">
+      <h2>Todos os livros</h2>
       <ul>
-        <li v-for="monitoria in monitorias" :key="monitoria._id">
-          <div class="monitoria-disciplina">
-            {{ monitoria.disciplina }}
+        <li v-for="monitoria in allMonitorias" :key="monitoria._id">
+          <div class="monitoria-title">
+            {{ monitoria.title }}
+            <br>
+            {{ monitoria.description }}
+            <br>
+            <br>
+            <button @click="showDetails(monitoria)">Detalhes</button>
           </div>
-          <div class="monitoria-disciplina">
-            {{ monitoria.date }}
-          </div>
-          <div class="monitoria-disciplina">
-            {{ monitoria.time }}
-          </div>
-          <div class="monitoria-disciplina">
-            {{ monitoria.place }}
-          </div>
-          <div class="actions">
-            <button @click="deleteMonitoria(monitoria._id)">Excluir</button>
-            <button @click="showUpdateForm(monitoria)">Atualizar</button>
-          </div>
-          <div v-if="beingEdited && beingEdited._id === monitoria._id" class="edit">
-            <h3>Editar Tarefa</h3>
+          <div v-if="bookDetails && bookDetails._id === monitoria._id" class="edit">
+            <h3>Detalhes</h3>
             <form @submit.prevent="updateAndHide">
-              <input type="text" v-model="beingEdited.disciplina" required />
-              <input type="date" v-model="beingEdited.date" required />
-              <input type="time" v-model="beingEdited.time" required />
-              <input type="text" v-model="beingEdited.place" required />
-              <button type="submit">Salvar</button>
-              <button type="button" @click="beingEdited = null">Cancelar</button>
+              <div class="monitoria-title">
+                {{ monitoria.title }}
+                <br>
+                {{ monitoria.date }}
+                <br>
+                {{ monitoria.time }}
+                <br>
+                {{ monitoria.description }}
+              </div>
+              <button type="button" @click="bookDetails = null">Fechar</button>
             </form>
           </div>
         </li>
       </ul>
+    </div>
+    <div id="monitorias-disponiveis" class="columnright">
+        <h1>Minhas Reservas</h1>
+
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Título</th>
+              <th>Data</th>
+              <th>Horário</th>
+            </tr>
+          </thead>
+          <tbody>  
+            <tr v-for="monitoria in monitorias" :key="monitoria._id">
+              <td>{{ monitoria.title }}</td>
+              <td>{{ monitoria.date }}</td>
+              <td>{{ monitoria.time }}</td>
+            </tr>        
+          </tbody>
+        </table>
     </div>
   </div>
 </main>
@@ -76,11 +64,11 @@ export default {
     return {
       monitorias: [],
       allMonitorias: [],
-      disciplina: "",
+      title: "",
       date: "",
       time: "",
-      place: "",
-      beingEdited: null,
+      description: "",
+      bookDetails: null,
       userId: null,
     };
   },
@@ -95,18 +83,18 @@ export default {
     },
     async addMonitoria() {
       const monitoria = {
-        disciplina: this.disciplina,
+        title: this.title,
         date: this.date,
         time: this.time,
-        place: this.place,
+        description: this.description,
         done: false,
       };
       const created = await createMonitoria(monitoria, this.userId);
       this.monitorias.push(created);
-      this.disciplina = "";
+      this.title = "";
       this.date = "";
       this.time = "";
-      this.place = "";
+      this.description = "";
       this.loadAllMonitorias();
     },
     async deleteMonitoria(monitoriaId) {
@@ -114,12 +102,12 @@ export default {
       this.monitorias = this.monitorias.filter((monitoria) => monitoria._id !== monitoriaId);
       this.loadAllMonitorias();
     },
-    showUpdateForm(monitoria) {
-      this.beingEdited = monitoria;
+    showDetails(monitoria) {
+      this.bookDetails = monitoria;
   },
     async updateAndHide() {
-      await updateMonitoria(this.beingEdited._id, this.beingEdited);
-      this.beingEdited = null;
+      await updateMonitoria(this.bookDetails._id, this.bookDetails);
+      this.bookDetails = null;
       this.loadAllMonitorias();
   },
   },
@@ -201,17 +189,18 @@ ul {
 
 li {
   display: flex;
-  flex-direction: column;
+  flex-direction:row;
   background-color: #f0f0f0;
   padding: 0px;
   border-radius: 5px;
   margin-bottom: 1px;
-  flex-basis: 10%; 
+  flex-basis: 40%; 
 }
 
-.monitoria-disciplina {
+.monitoria-title {
   margin-bottom: 0.1rem;
   align-items: center;
+  text-align: center;
 }
 
 .actions {

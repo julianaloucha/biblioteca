@@ -7,7 +7,7 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>Disciplina</th>
+              <th>title</th>
               <th>Data</th>
               <th>Horário</th>
               <th>Local</th>
@@ -15,10 +15,10 @@
           </thead>
           <tbody>  
             <tr v-for="monitoria in allMonitorias" :key="monitoria._id">
-              <td>{{ monitoria.disciplina }}</td>
+              <td>{{ monitoria.title }}</td>
               <td>{{ monitoria.date }}</td>
               <td>{{ monitoria.time }}</td>
-              <td>{{ monitoria.place }}</td>
+              <td>{{ monitoria.description }}</td>
             </tr>        
           </tbody>
         </table>
@@ -26,25 +26,25 @@
     <div class="columnright">
       <h2>Oferecer Monitoria</h2>
       <form @submit.prevent="addMonitoria">
-        <input type="text" v-model="disciplina" placeholder="Disciplina da monitoria" required />
+        <input type="text" v-model="title" placeholder="title da monitoria" required />
         <input type="date" v-model="date" placeholder="Data da monitoria" required />
         <input type="time" v-model="time" placeholder="Horário da monitoria" required />
-        <input type="text" v-model="place" placeholder="Local da monitoria" required />
+        <input type="text" v-model="description" placeholder="Local da monitoria" required />
         <button type="submit">Adicionar</button>
       </form>
       <ul>
         <li v-for="monitoria in monitorias" :key="monitoria._id">
-          <div class="monitoria-disciplina">
-            {{ monitoria.disciplina }}
+          <div class="monitoria-title">
+            {{ monitoria.title }}
           </div>
-          <div class="monitoria-disciplina">
+          <div class="monitoria-title">
             {{ monitoria.date }}
           </div>
-          <div class="monitoria-disciplina">
+          <div class="monitoria-title">
             {{ monitoria.time }}
           </div>
-          <div class="monitoria-disciplina">
-            {{ monitoria.place }}
+          <div class="monitoria-title">
+            {{ monitoria.description }}
           </div>
           <div class="actions">
             <button @click="deleteMonitoria(monitoria._id)">Excluir</button>
@@ -53,10 +53,10 @@
           <div v-if="beingEdited && beingEdited._id === monitoria._id" class="edit">
             <h3>Editar Tarefa</h3>
             <form @submit.prevent="updateAndHide">
-              <input type="text" v-model="beingEdited.disciplina" required />
+              <input type="text" v-model="beingEdited.title" required />
               <input type="date" v-model="beingEdited.date" required />
               <input type="time" v-model="beingEdited.time" required />
-              <input type="text" v-model="beingEdited.place" required />
+              <input type="text" v-model="beingEdited.description" required />
               <button type="submit">Salvar</button>
               <button type="button" @click="beingEdited = null">Cancelar</button>
             </form>
@@ -76,10 +76,10 @@ export default {
     return {
       monitorias: [],
       allMonitorias: [],
-      disciplina: "",
+      title: "",
       date: "",
       time: "",
-      place: "",
+      description: "",
       beingEdited: null,
       userId: null,
     };
@@ -95,18 +95,18 @@ export default {
     },
     async addMonitoria() {
       const monitoria = {
-        disciplina: this.disciplina,
+        title: this.title,
         date: this.date,
         time: this.time,
-        place: this.place,
+        description: this.description,
         done: false,
       };
       const created = await createMonitoria(monitoria, this.userId);
       this.monitorias.push(created);
-      this.disciplina = "";
+      this.title = "";
       this.date = "";
       this.time = "";
-      this.place = "";
+      this.description = "";
       this.loadAllMonitorias();
     },
     async deleteMonitoria(monitoriaId) {
@@ -209,7 +209,7 @@ li {
   flex-basis: 10%; 
 }
 
-.monitoria-disciplina {
+.monitoria-title {
   margin-bottom: 0.1rem;
   align-items: center;
 }

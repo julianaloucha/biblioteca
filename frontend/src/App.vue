@@ -134,8 +134,8 @@ main {
   flex-direction: column;
   align-items: certer;
   width: 100%;
-  padding: 1rem;
-  margin-top: 0.5rem;
+  /*padding: 1rem;
+  margin-top: 0.5rem;*/
 }
 
 </style>

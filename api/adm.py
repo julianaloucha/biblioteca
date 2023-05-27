@@ -5,14 +5,6 @@ from settings import users_collection
 
 adm_blueprint = Blueprint('adm', __name__)
 
-# Enable CORS headers
-@adm_blueprint.after_request
-def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE'
-    return response
-
 # Criar um novo usuário
 @adm_blueprint.route('/adm', methods=['POST'])
 def create_user():
