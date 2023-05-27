@@ -1,0 +1,7 @@
+Flask
+Flask-PyMongo
+Flask-Cors 
+pymongo 
+dnspython
+flask-login
+flask-bcrypt
