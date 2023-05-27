@@ -35,6 +35,7 @@ export async function createMonitoria(monitoria, userId) {
 }
 
 
+
 export async function updateMonitoria(monitoriaId, monitoria) {
   return fetchData(`${API_URL}/monitorias/${monitoriaId}`, {
     method: "PUT",

@@ -1,38 +1,44 @@
 <template>
-<main class="main">
-  <header>botões edit user</header>
-  <div class="row">
-    <div class="columnleft">
-      <h2>Todos os livros</h2>
-      <ul>
-        <li v-for="monitoria in allMonitorias" :key="monitoria._id">
-          <div class="monitoria-title">
-            {{ monitoria.title }}
-            <br>
-            {{ monitoria.description }}
-            <br>
-            <br>
-            <button @click="showDetails(monitoria)">Detalhes</button>
-          </div>
-          <div v-if="bookDetails && bookDetails._id === monitoria._id" class="edit">
-            <h3>Detalhes</h3>
-            <form @submit.prevent="updateAndHide">
+  <main class="main">
+    <header>botões edit user {{ userId }}</header>
+    <div class="row">
+      <div class="columnleft">
+        <h2>Todos os livros</h2>
+        <ul>
+          <li v-for="book in allBooks" :key="book._id">
+            <div class="monitoria-title">
+              {{ book.title }}
+              <br>
+              {{ book.description }}
+              <br>
+              <br>
+              <button @click="showDetails(book)">Detalhes</button>
+            </div>
+            <div v-if="bookDetails && bookDetails._id === book._id" class="edit">
+              <h3>Detalhes</h3>
               <div class="monitoria-title">
-                {{ monitoria.title }}
+                {{ bookDetails.title }}
                 <br>
-                {{ monitoria.date }}
+                {{ bookDetails.date }}
                 <br>
-                {{ monitoria.time }}
+                {{ bookDetails.time }}
                 <br>
-                {{ monitoria.description }}
+                {{ bookDetails.description }}
+                <br>
+                {{ bookDetails.user_id }}
               </div>
+              <template v-if="!bookDetails.user_id">
+                <button @click="reserveBook()">Reservar</button>
+              </template>
+              <template v-else>
+                <button disabled class="reserved-button">Reservado</button>
+              </template>
               <button type="button" @click="bookDetails = null">Fechar</button>
-            </form>
-          </div>
-        </li>
-      </ul>
-    </div>
-    <div id="monitorias-disponiveis" class="columnright">
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div id="monitorias-disponiveis" class="columnright">
         <h1>Minhas Reservas</h1>
 
         <table class="table table-hover">
@@ -43,17 +49,17 @@
               <th>Horário</th>
             </tr>
           </thead>
-          <tbody>  
-            <tr v-for="monitoria in monitorias" :key="monitoria._id">
-              <td>{{ monitoria.title }}</td>
-              <td>{{ monitoria.date }}</td>
-              <td>{{ monitoria.time }}</td>
-            </tr>        
+          <tbody>
+            <tr v-for="book in books" :key="book._id">
+              <td>{{ book.title }}</td>
+              <td>{{ book.date }}</td>
+              <td>{{ book.time }}</td>
+            </tr>
           </tbody>
         </table>
+      </div>
     </div>
-  </div>
-</main>
+  </main>
 </template>
 
 <script>
@@ -62,8 +68,8 @@ import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAl
 export default {
   data() {
     return {
-      monitorias: [],
-      allMonitorias: [],
+      books: [],
+      allBooks: [],
       title: "",
       date: "",
       time: "",
@@ -75,47 +81,43 @@ export default {
   methods: {
     async loadUserMonitorias(userId) {
       this.userId = userId;
-      this.monitorias = await getMonitorias(userId);
+      this.books = await getMonitorias(userId);
     },
     async loadAllMonitorias() {
-      console.log("allMonitorias: " )
-      this.allMonitorias = await getAllMonitorias();
+      this.allBooks = await getAllMonitorias();
     },
-    async addMonitoria() {
-      const monitoria = {
-        title: this.title,
-        date: this.date,
-        time: this.time,
-        description: this.description,
-        done: false,
-      };
-      const created = await createMonitoria(monitoria, this.userId);
-      this.monitorias.push(created);
-      this.title = "";
-      this.date = "";
-      this.time = "";
-      this.description = "";
+    async deleteMonitoria(bookId) {
+      await deleteMonitoria(bookId);
+      this.books = this.books.filter((book) => book._id !== bookId);
       this.loadAllMonitorias();
     },
-    async deleteMonitoria(monitoriaId) {
-      await deleteMonitoria(monitoriaId);
-      this.monitorias = this.monitorias.filter((monitoria) => monitoria._id !== monitoriaId);
-      this.loadAllMonitorias();
+    showDetails(book) {
+      this.bookDetails = book;
     },
-    showDetails(monitoria) {
-      this.bookDetails = monitoria;
-  },
-    async updateAndHide() {
-      await updateMonitoria(this.bookDetails._id, this.bookDetails);
-      this.bookDetails = null;
-      this.loadAllMonitorias();
-  },
+    async reserveBook() {
+      if (!this.bookDetails.user_id) {
+        this.bookDetails.user_id = this.userId;
+
+        // Add today's date to bookDetails.date
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        this.bookDetails.date = `${year}-${month}-${day}`;
+
+        // Add current time to bookDetails.time
+        const hours = String(today.getHours()).padStart(2, '0');
+        const minutes = String(today.getMinutes()).padStart(2, '0');
+        this.bookDetails.time = `${hours}:${minutes}`;
+
+        await updateMonitoria(this.bookDetails._id, this.bookDetails);
+        this.bookDetails = null;
+        this.loadUserMonitorias(this.userId);
+      }
+    },
   },
 };
 </script>
-
-
-
   
 <style scoped>
 * {
@@ -174,6 +176,15 @@ button:hover {
   background-color: #14181d;
   color: white;
   cursor: pointer;
+}
+
+.reserved-button {
+  background-color: #ccc;
+  cursor: default;
+}
+
+.reserved-button:hover {
+  background-color: #ccc;
 }
 
 ul {
