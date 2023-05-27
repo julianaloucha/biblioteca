@@ -27,11 +27,11 @@
                 <br>
                 {{ bookDetails.user_id }}
               </div>
-              <template v-if="!bookDetails.user_id">
+              <template v-if="!bookDetails.user_id && !isReservationFull()">
                 <button @click="reserveBook()">Reservar</button>
               </template>
               <template v-else>
-                <button disabled class="reserved-button">Reservado</button>
+                <button disabled class="reserved-button">Reservar</button>
               </template>
               <button type="button" @click="bookDetails = null">Fechar</button>
             </div>
@@ -57,13 +57,14 @@
             </tr>
           </tbody>
         </table>
+        <p class=paragrafo v-if="isReservationFull()">Limite máximo de reservas atingido</p>
       </div>
     </div>
   </main>
 </template>
 
 <script>
-import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAllMonitorias } from "../api";
+import { getMonitorias, updateMonitoria, deleteMonitoria, getAllMonitorias } from "../api";
 
 export default {
   data() {
@@ -114,6 +115,9 @@ export default {
         this.bookDetails = null;
         this.loadUserMonitorias(this.userId);
       }
+    },
+    isReservationFull() {
+      return this.books.length >= 3;
     },
   },
 };
@@ -258,6 +262,12 @@ th {
   background-color: #103c5c;
   color: white;
   text-transform: capitalize;
+}
+
+.paragrafo{
+  color: red;
+  font-weight: bold;
+  margin-top: 1rem;
 }
 
 </style>
