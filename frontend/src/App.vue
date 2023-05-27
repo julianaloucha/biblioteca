@@ -11,7 +11,7 @@
     <main>
       <login v-if="!loggedIn && !showRegister && !showAdm" @login-success="loginSuccess" @go-to-register="showRegister = true" @go-to-adm="showAdm = true" />
       <sign-up v-if="!loggedIn && showRegister && !showAdm" @register-success="loginSuccess" @go-to-login="showRegister = false" />
-      <adm-login v-if="!loggedIn && !showRegister && showAdm" @login-success="loginSuccessAdm" />
+      <adm-login v-if="!loggedInAdm && !showRegister && showAdm" @login-success="loginSuccessAdm" />
       <div class="container" v-if="loggedIn">
         <list ref="listMonitorias" />
       </div>
