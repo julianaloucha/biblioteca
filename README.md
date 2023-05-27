@@ -49,6 +49,7 @@ DB_URI = seu_uri_de_conexão_do_mongodb_atlas
 ```bash
 cd frontend
 npm install
+npm install qrcode
 ```
 
 ## Executando o projeto

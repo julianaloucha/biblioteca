@@ -47,6 +47,7 @@
               <th>Título</th>
               <th>Data</th>
               <th>Horário</th>
+              <th>QR Code</th>
             </tr>
           </thead>
           <tbody>
@@ -54,6 +55,9 @@
               <td>{{ book.title }}</td>
               <td>{{ book.date }}</td>
               <td>{{ book.time }}</td>
+              <td>
+                <img :src="book.qrcodeImage" alt="QR Code" />
+              </td>
             </tr>
           </tbody>
         </table>
@@ -65,6 +69,7 @@
 
 <script>
 import { getMonitorias, updateMonitoria, deleteMonitoria, getAllMonitorias } from "../api";
+import QRCode from "qrcode";
 
 export default {
   data() {
@@ -77,6 +82,7 @@ export default {
       description: "",
       bookDetails: null,
       userId: null,
+      qrcodeImage: null,
     };
   },
   methods: {
@@ -110,6 +116,10 @@ export default {
         const hours = String(today.getHours()).padStart(2, '0');
         const minutes = String(today.getMinutes()).padStart(2, '0');
         this.bookDetails.time = `${hours}:${minutes}`;
+
+        // Add new QRCode
+        const qrCodeData = JSON.stringify(this.bookDetails);
+        this.bookDetails.qrcodeImage = await QRCode.toDataURL(qrCodeData);
 
         await updateMonitoria(this.bookDetails._id, this.bookDetails);
         this.bookDetails = null;
