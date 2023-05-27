@@ -14,11 +14,11 @@
             </tr>
           </thead>
           <tbody>  
-            <tr v-for="monitoria in allMonitorias" :key="monitoria._id">
-              <td>{{ monitoria.title }}</td>
-              <td>{{ monitoria.date }}</td>
-              <td>{{ monitoria.time }}</td>
-              <td>{{ monitoria.description }}</td>
+            <tr v-for="book in allBooks" :key="book._id">
+              <td>{{ book.title }}</td>
+              <td>{{ book.author }}</td>
+              <td>{{ book.isbn }}</td>
+              <td>{{ book.description }}</td>
             </tr>        
           </tbody>
         </table>
@@ -26,37 +26,41 @@
     <div class="columnright">
       <h2>Oferecer Monitoria</h2>
       <form @submit.prevent="addMonitoria">
-        <input type="text" v-model="title" placeholder="title da monitoria" required />
-        <input type="date" v-model="date" placeholder="Data da monitoria" required />
-        <input type="time" v-model="time" placeholder="Horário da monitoria" required />
-        <input type="text" v-model="description" placeholder="Local da monitoria" required />
+        <input type="text" v-model="title" placeholder="Título do livro" required />
+        <input type="text" v-model="author" placeholder="Autor" required />
+        <input type="text" v-model="isbn" placeholder="ISBN" required />
+        <input type="text" v-model="description" placeholder="Descrição" required />
+        <input type="file" @change="handleImageUpload" accept="image/*" placeholder="Imagem da capa" required />
         <button type="submit">Adicionar</button>
       </form>
       <ul>
-        <li v-for="monitoria in monitorias" :key="monitoria._id">
+        <li v-for="book in books" :key="book._id">
           <div class="monitoria-title">
-            {{ monitoria.title }}
+            {{ book.title }}
           </div>
           <div class="monitoria-title">
-            {{ monitoria.date }}
+            {{ book.author }}
           </div>
           <div class="monitoria-title">
-            {{ monitoria.time }}
+            {{ book.isbn }}
           </div>
           <div class="monitoria-title">
-            {{ monitoria.description }}
+            {{ book.description }}
+          </div>
+          <div class="monitoria-title">
+            <img :src="book.image" />
           </div>
           <div class="actions">
-            <button @click="deleteMonitoria(monitoria._id)">Excluir</button>
-            <button @click="showUpdateForm(monitoria)">Atualizar</button>
+            <button @click="deleteMonitoria(book._id)">Excluir</button>
+            <button @click="showUpdateForm(book)">Atualizar</button>
           </div>
-          <div v-if="beingEdited && beingEdited._id === monitoria._id" class="edit">
+          <div v-if="beingEdited && beingEdited._id === book._id" class="edit">
             <h3>Editar Tarefa</h3>
             <form @submit.prevent="updateAndHide">
-              <input type="text" v-model="beingEdited.title" required />
-              <input type="date" v-model="beingEdited.date" required />
-              <input type="time" v-model="beingEdited.time" required />
-              <input type="text" v-model="beingEdited.description" required />
+              <input type="text" v-model="beingEdited.title" placeholder="Título do livro" required />
+              <input type="text" v-model="beingEdited.author" placeholder="Autor" required />
+              <input type="text" v-model="beingEdited.isbn" placeholder="ISBN" required />
+              <input type="text" v-model="beingEdited.description" placeholder="Imagem da capa" required />
               <button type="submit">Salvar</button>
               <button type="button" @click="beingEdited = null">Cancelar</button>
             </form>
@@ -74,54 +78,66 @@ import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAl
 export default {
   data() {
     return {
-      monitorias: [],
-      allMonitorias: [],
+      books: [],
+      allBooks: [],
       title: "",
-      date: "",
-      time: "",
+      author: "",
+      isbn: "",
       description: "",
       beingEdited: null,
       userId: null,
+      imageData: null,
     };
   },
   methods: {
     async loadUserMonitorias(userId) {
       this.userId = userId;
-      this.monitorias = await getMonitorias(userId);
+      this.books = await getMonitorias(userId);
     },
     async loadAllMonitorias() {
       console.log("allMonitorias: " )
-      this.allMonitorias = await getAllMonitorias();
+      this.allBooks = await getAllMonitorias();
     },
     async addMonitoria() {
-      const monitoria = {
+      const book = {
         title: this.title,
-        date: this.date,
-        time: this.time,
+        author: this.author,
+        isbn: this.isbn,
         description: this.description,
-        done: false,
+        image: this.imageData, // Store the image data in the book.image field
       };
-      const created = await createMonitoria(monitoria, this.userId);
-      this.monitorias.push(created);
+      const created = await createMonitoria(book, this.userId);
+      this.books.push(created);
       this.title = "";
-      this.date = "";
-      this.time = "";
+      this.author = "";
+      this.isbn = "";
       this.description = "";
+      this.imageData = null; // Reset the imageData after submission
       this.loadAllMonitorias();
     },
-    async deleteMonitoria(monitoriaId) {
-      await deleteMonitoria(monitoriaId);
-      this.monitorias = this.monitorias.filter((monitoria) => monitoria._id !== monitoriaId);
+    async deleteMonitoria(bookId) {
+      await deleteMonitoria(bookId);
+      this.books = this.books.filter((book) => book._id !== bookId);
       this.loadAllMonitorias();
     },
-    showUpdateForm(monitoria) {
-      this.beingEdited = monitoria;
+    showUpdateForm(book) {
+      this.beingEdited = book;
   },
     async updateAndHide() {
       await updateMonitoria(this.beingEdited._id, this.beingEdited);
       this.beingEdited = null;
       this.loadAllMonitorias();
   },
+  handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.imageData = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
   },
 };
 </script>
