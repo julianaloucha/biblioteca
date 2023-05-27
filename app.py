@@ -2,12 +2,14 @@ from flask import Flask
 from flask_cors import CORS
 from api.monitorias import monitorias_blueprint
 from api.users import users_blueprint
+from api.adm import adm_blueprint
 
 app = Flask(__name__)
 CORS(app)
 
 app.register_blueprint(monitorias_blueprint, url_prefix='/api')
 app.register_blueprint(users_blueprint, url_prefix='/api')
+app.register_blueprint(adm_blueprint, url_prefix='/api')
 
 if __name__ == '__main__':
     from os import environ

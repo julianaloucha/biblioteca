@@ -15,7 +15,7 @@
       <div class="container" v-if="loggedIn">
         <list ref="listMonitorias" />
       </div>
-      <div class="container" v-if="loggedIn">
+      <div class="container" v-if="loggedInAdm">
         <list-adm ref="listAdm" />
       </div>
     </main>
@@ -40,6 +40,7 @@ export default {
   data() {
     return {
       loggedIn: false,
+      loggedInAdm: false,
       showRegister: false,
       showAdm: false,
     };
@@ -54,7 +55,7 @@ export default {
     });
   },
     loginSuccessAdm(userId) {
-    this.loggedIn = true;
+    this.loggedInAdm = true;
     this.$nextTick(() => {
       console.log("next Tick" );
       this.$refs.listAdm.loadUserMonitorias(userId);
@@ -77,7 +78,7 @@ export default {
 
 .sair {
   background-color: white;
-  color: purple;
+  color: #103c5c;
   margin-right: 2rem;
   padding: 0.5rem;
   border-radius: 0.7rem;
