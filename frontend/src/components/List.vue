@@ -2,8 +2,14 @@
   <main class="main">
     <header>
       botões edit user {{ userId }}
-      <button class="notification-button" @click="showNotifications">Notifications</button>
+      <button class="notification-button" @click="toggleNotificationBox">{{ showNotificationBox ? 'Hide Notifications' : 'Show Notifications' }}</button>
     </header>
+    <div class="notification-box" v-show="showNotificationBox">
+      <h3>Notifications</h3>
+      <ul>
+        <li v-for="notification in notifications" :key="notification" class="notif">{{ notification }}</li>
+      </ul>
+    </div>
     <div class="row">
       <div class="columnleft">
         <h2>Todos os livros</h2>
@@ -85,12 +91,14 @@ export default {
       userId: null,
       qrcodeImage: null,
       notifications: [], // Array to store notifications
+      showNotificationBox: false, 
     };
   },
   methods: {
     async loadUserMonitorias(userId) {
       this.userId = userId;
       this.books = await getMonitorias(userId);
+      this.showNotifications();
     },
     async loadAllMonitorias() {
       this.allBooks = await getAllMonitorias();
@@ -129,6 +137,9 @@ export default {
     isReservationFull() {
       return this.books.length >= 3;
     },
+    toggleNotificationBox() {
+      this.showNotificationBox = !this.showNotificationBox;
+    },
     showNotifications() {
       // Clear existing notifications
       this.notifications = [];
@@ -142,15 +153,17 @@ export default {
         const timeDifference = returnDate.getTime() - currentDate.getTime();
         const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
 
-        if (daysDifference === 2) {
-          this.notifications.push(`Book '${book.title}' has a return date in two days.`);
+        if (daysDifference <= 2) {
+          this.notifications.push(`Book '${book.title}' has a return date in ${daysDifference} days.`);
         }
       });
-      // Display notifications in the console (you can modify this to suit your needs)
       this.notifications.forEach((notification) => {
         console.log(notification);
       });
     },
+  },
+  created() {
+    this.showNotifications(); // Call the method when the component is created
   },
 };
 </script>
@@ -305,6 +318,35 @@ th {
 .capa {
   width: 10rem;
   margin: 0.5rem;
+}
+
+.notification-box {
+  position: absolute;
+  top: 10rem;
+  right: 20px;
+  width: 200px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.notification-box h3 {
+  margin: 0 0 10px;
+}
+
+.notification-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-box li {
+  margin-bottom: 5px;
+}
+
+.notif {
+  flex-basis: 100%;
 }
 
 </style>
