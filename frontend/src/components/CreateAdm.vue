@@ -6,26 +6,13 @@
         <input type="email" v-model="email" placeholder="E-mail" required />
         <input type="password" v-model="password" placeholder="Senha" required />
         <input type="text" v-model="name" placeholder="Nome" required />
-        <select v-model="curso" required> 
-                    <option value="" disabled selected hidden>Selecione seu curso</option>
-                    <option value="Administração">Administração</option>
-                    <option value="Design">Design</option>
-                    <option value="Direito">Direito</option>
-                    <option value="Economia">Economia</option>
-                    <option value="Computação">Computação</option>
-                    <option value="Produção">Produção</option>
-                    <option value="Mecânica">Mecânica</option>
-                    <option value="PPM">PPM</option>
-                    <option value="RI">RI</option>
-        </select>
-        <input type="number" v-model="ra" placeholder="RA" required />
         <button type="submit">Registrar</button>
       </form>
     </div>
   </template>
   
   <script>
-  import { registerUser } from "../api";
+  import { registerAdm } from "../api";
   
   export default {
     data() {
@@ -33,8 +20,6 @@
         email: "",
         password: "",
         name: "",
-        curso: "",
-        ra: "",
       };
     },
     methods: {
@@ -44,10 +29,8 @@
             email: this.email,
             password: this.password,
             name: this.name,
-            curso: this.curso,
-            ra: this.ra,
           };
-          const userId = await registerUser(user); // Armazenar o retorno da chamada
+          const userId = await registerAdm(user); // Armazenar o retorno da chamada
           this.$emit('register-success', userId);  // Emitir o userId no evento
         } catch (error) {
           console.error(error);
