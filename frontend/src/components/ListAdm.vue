@@ -21,7 +21,9 @@
             <td>{{ user.ra }}</td>
             <td>{{ user.curso }}</td>
             <td>{{ user.status }}</td>
-            <td><button @click="updateUser(user)">Autorizar</button></td>
+            <td v-if="user.status == 'waiting'"><button @click="approveUser(user)">Autorizar</button></td>
+            <td v-if="user.status == 'approved'"><button @click="suspendUser(user)">Suspender</button></td>
+            <td v-if="user.status == 'suspended'"><button @click="approveUser(user)">Retirar suspensão</button></td>
           </tr>        
         </tbody>
       </table>
@@ -129,9 +131,15 @@ export default {
       this.beingEdited = null;
       this.loadAllMonitorias();
     },
-    async updateUser(user) {
+    async approveUser(user) {
       console.log("userUpdate: " + user.name);
       user.status = "approved"
+      await updateUser(user._id, user);
+      this.loadUsers();
+    },
+    async suspendUser(user) {
+      console.log("userUpdate: " + user.name);
+      user.status = "suspended"
       await updateUser(user._id, user);
       this.loadUsers();
     },

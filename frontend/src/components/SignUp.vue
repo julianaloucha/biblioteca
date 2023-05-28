@@ -46,8 +46,13 @@
             curso: this.curso,
             ra: this.ra,
           };
-          const userId = await registerUser(user); // Armazenar o retorno da chamada
-          this.$emit('register-success', userId);  // Emitir o userId no evento
+          await registerUser(user);
+          this.email = "";
+          this.password = "";
+          this.name = "";
+          this.curso = "";
+          this.ra = "";
+          alert('Aguarde a aprovação do seu usuário');
         } catch (error) {
           console.error(error);
           alert('Registro falhou');
