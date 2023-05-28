@@ -12,6 +12,7 @@
             <th>RA</th>
             <th>Curso</th>
             <th>Status</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>  
@@ -20,6 +21,7 @@
             <td>{{ user.ra }}</td>
             <td>{{ user.curso }}</td>
             <td>{{ user.status }}</td>
+            <td><button @click="updateUser(user)">Autorizar</button></td>
           </tr>        
         </tbody>
       </table>
@@ -68,7 +70,7 @@
 </template>
 
 <script>
-import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAllMonitorias, getUsers } from "../api";
+import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAllMonitorias, getUsers, updateUser } from "../api";
 
 export default {
   data() {
@@ -83,6 +85,7 @@ export default {
       beingEdited: null,
       userId: null,
       imageData: null,
+      userEdited: null,
     };
   },
   methods: {
@@ -94,7 +97,6 @@ export default {
       this.allBooks = await getAllMonitorias();
     },
     async loadUsers() {
-      console.log("load users " )
       this.users = await getUsers();
     },
     async addMonitoria() {
@@ -121,25 +123,31 @@ export default {
     },
     showUpdateForm(book) {
       this.beingEdited = book;
-  },
+    },
     async updateAndHide() {
       await updateMonitoria(this.beingEdited._id, this.beingEdited);
       this.beingEdited = null;
       this.loadAllMonitorias();
-  },
-  handleImageUpload(event) {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.imageData = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  },
-  goToNewAdmPage() {
-    this.$emit('go-to-new-adm'); // Emit a custom event to the parent component (App.vue)
-  },
+    },
+    async updateUser(user) {
+      console.log("userUpdate: " + user.name);
+      user.status = "approved"
+      await updateUser(user._id, user);
+      this.loadUsers();
+    },
+    handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.imageData = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    goToNewAdmPage() {
+      this.$emit('go-to-new-adm'); // Emit a custom event to the parent component (App.vue)
+    },
   },
 };
 </script>

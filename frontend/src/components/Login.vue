@@ -32,7 +32,7 @@
           this.$emit('login-success', userId);  // Emitir o userId no evento
         } catch (error) {
           console.error(error);
-          alert('Login falhou');
+          alert(error);
         }
       },
     },

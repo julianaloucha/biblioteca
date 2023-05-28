@@ -3,8 +3,9 @@ const API_URL = "http://localhost:5000/api";
 
 async function fetchData(url, options) {
   const response = await fetch(url, options);
+  const responseBody = await response.text();
   if (!response.ok) {
-    throw new Error(`Failed to fetch: ${response.status}`);
+    throw new Error(`${responseBody} ${response.status}`);
   }
   return response.json();
 }
@@ -103,5 +104,15 @@ export async function getUsers() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(),
+  });
+}
+
+export async function updateUser(userId, user) {
+  return fetchData(`${API_URL}/allusers/${userId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(user),
   });
 }
