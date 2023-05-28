@@ -25,13 +25,15 @@
     methods: {
       async register() {
         try {
-          const user = {
+          const adm = {
             email: this.email,
             password: this.password,
             name: this.name,
           };
-          const userId = await registerAdm(user); // Armazenar o retorno da chamada
-          this.$emit('register-success', userId);  // Emitir o userId no evento
+          await registerAdm(adm); // Armazenar o retorno da chamada
+          this.email = "";
+          this.password = "";
+          this.name = "";
         } catch (error) {
           console.error(error);
           alert('Registro falhou');
