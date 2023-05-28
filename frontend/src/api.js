@@ -95,3 +95,13 @@ export async function registerAdm(user) {
   });
   return response._id;
 }
+
+export async function getUsers() {
+  return fetchData(`${API_URL}/allusers`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(),
+  });
+}

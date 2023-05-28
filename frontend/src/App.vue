@@ -66,14 +66,16 @@ export default {
       console.log("next Tick" );
       this.$refs.listAdm.loadUserMonitorias(userId);
       this.$refs.listAdm.loadAllMonitorias();
+      this.$refs.listAdm.loadUsers();
     });
   },
     goBack(userId) {
-    this.showNewAdmPage = false;
+    this.showNewAdmPage = false; 
     this.$nextTick(() => {
       console.log("next Tick" );
       this.$refs.listAdm.loadUserMonitorias(userId);
       this.$refs.listAdm.loadAllMonitorias();
+      this.$refs.listAdm.loadUsers();
     });
   },
     refreshPage() {

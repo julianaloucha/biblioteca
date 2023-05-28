@@ -8,22 +8,24 @@
       <table class="table table-hover">
         <thead>
           <tr>
-            <th>titulo</th>
-            <th>Autor</th>
-            <th>ISBN</th>
+            <th>Nome</th>
+            <th>RA</th>
+            <th>Curso</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>  
-          <tr v-for="book in allBooks" :key="book._id">
-            <td>{{ book.title }}</td>
-            <td>{{ book.author }}</td>
-            <td>{{ book.isbn }}</td>
+          <tr v-for="user in users" :key="user._id">
+            <td>{{ user.name }}</td>
+            <td>{{ user.ra }}</td>
+            <td>{{ user.curso }}</td>
+            <td>{{ user.status }}</td>
           </tr>        
         </tbody>
       </table>
     </div>
     <div class="columnright">
-      <h2>Oferecer Monitoria</h2>
+      <h2>Cadastrar novo livro</h2>
       <form @submit.prevent="addMonitoria">
         <input type="text" v-model="title" placeholder="Título do livro" required />
         <input type="text" v-model="author" placeholder="Autor" required />
@@ -32,45 +34,46 @@
         <input type="file" @change="handleImageUpload" accept="image/*" placeholder="Imagem da capa" required />
         <button type="submit">Adicionar</button>
       </form>
-      <ul>
-        <li v-for="book in allBooks" :key="book._id">
-          <div class="monitoria-title">
-            {{ book.title }}
-          </div>
-          <div class="monitoria-title">
-            {{ book.author }}
-          </div>
-          <div class="monitoria-title">
-            <img :src="book.image"  class="capa" />
-          </div>
-          <div class="actions">
-            <button @click="deleteMonitoria(book._id)">Excluir</button>
-            <button @click="showUpdateForm(book)">Atualizar</button>
-          </div>
-          <div v-if="beingEdited && beingEdited._id === book._id" class="edit">
-            <h3>Editar Tarefa</h3>
-            <form @submit.prevent="updateAndHide">
-              <input type="text" v-model="beingEdited.title" placeholder="Título do livro" required />
-              <input type="text" v-model="beingEdited.author" placeholder="Autor" required />
-              <input type="text" v-model="beingEdited.isbn" placeholder="ISBN" required />
-              <input type="text" v-model="beingEdited.description" placeholder="Imagem da capa" required />
-              <button type="submit">Salvar</button>
-              <button type="button" @click="beingEdited = null">Cancelar</button>
-            </form>
-          </div>
-        </li>
-      </ul>
     </div>
   </div>
+  <ul>
+    <li v-for="book in allBooks" :key="book._id">
+      <div class="monitoria-title">
+        {{ book.title }}
+      </div>
+      <div class="monitoria-title">
+        {{ book.author }}
+      </div>
+      <div class="monitoria-title">
+        <img :src="book.image"  class="capa" />
+      </div>
+      <div class="actions">
+        <button @click="deleteMonitoria(book._id)">Excluir</button>
+        <button @click="showUpdateForm(book)">Atualizar</button>
+      </div>
+      <div v-if="beingEdited && beingEdited._id === book._id" class="edit">
+        <h3>Editar Tarefa</h3>
+        <form @submit.prevent="updateAndHide">
+          <input type="text" v-model="beingEdited.title" placeholder="Título do livro" required />
+          <input type="text" v-model="beingEdited.author" placeholder="Autor" required />
+          <input type="text" v-model="beingEdited.isbn" placeholder="ISBN" required />
+          <input type="text" v-model="beingEdited.description" placeholder="Imagem da capa" required />
+          <button type="submit">Salvar</button>
+          <button type="button" @click="beingEdited = null">Cancelar</button>
+        </form>
+      </div>
+    </li>
+  </ul>
 </main>
 </template>
 
 <script>
-import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAllMonitorias } from "../api";
+import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAllMonitorias, getUsers } from "../api";
 
 export default {
   data() {
     return {
+      users: [],
       books: [],
       allBooks: [],
       title: "",
@@ -88,8 +91,11 @@ export default {
       this.books = await getMonitorias(userId);
     },
     async loadAllMonitorias() {
-      console.log("allMonitorias: " )
       this.allBooks = await getAllMonitorias();
+    },
+    async loadUsers() {
+      console.log("load users " )
+      this.users = await getUsers();
     },
     async addMonitoria() {
       const book = {

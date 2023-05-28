@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from settings import users_collection
+import json
 
 users_blueprint = Blueprint('users', __name__)
 
@@ -24,3 +25,10 @@ def login_user():
         return jsonify({'result': 'Logged in successfully', 'user_id': str(db_user['_id'])}), 200
     return jsonify({'error': 'Invalid username or password'}), 401
 
+# Obter todas as tarefas (R)
+@users_blueprint.route('/allusers', methods=['GET'])
+def get_Users():
+    allUsers = users_collection.find({})
+    users_list = [user for user in allUsers]
+    serialized_users = json.loads(json.dumps(users_list, default=str))
+    return jsonify(serialized_users), 200
