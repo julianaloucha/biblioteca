@@ -9,6 +9,7 @@ users_blueprint = Blueprint('users', __name__)
 @users_blueprint.route('/users', methods=['POST'])
 def create_user():
     user = request.get_json()
+    user['status'] = "waiting"
     user['password'] = generate_password_hash(user['password'])
     result = users_collection.insert_one(user)
     user['_id'] = str(result.inserted_id)

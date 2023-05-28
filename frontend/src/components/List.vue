@@ -34,7 +34,7 @@
                 <br>
                 {{ bookDetails.user_id }}
               </div>
-              <template v-if="!bookDetails.user_id && !isReservationFull() && isReturnDatePassed(book.return)">
+              <template v-if="!bookDetails.user_id && !isReservationFull() && isReturnDatePassed(book)">
                 <button @click="reserveBook()">Reservar</button>
               </template>
               <template v-else>
@@ -165,9 +165,12 @@ export default {
         console.log(notification);
       });
     },
-    isReturnDatePassed(returnDate) {
-      const currentDate = new Date();
-      return new Date(returnDate) <= currentDate;
+    isReturnDatePassed(book) {
+      if (book.user_id === this.user_id) {
+        const currentDate = new Date();
+        return new Date(book.return) <= currentDate;
+      }
+      return true
     }    
   },
   created() {
