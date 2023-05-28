@@ -34,7 +34,7 @@
                 <br>
                 {{ bookDetails.user_id }}
               </div>
-              <template v-if="!bookDetails.user_id && !isReservationFull()">
+              <template v-if="!bookDetails.user_id && !isReservationFull() && isReturnDatePassed(book.return)">
                 <button @click="reserveBook()">Reservar</button>
               </template>
               <template v-else>
@@ -150,17 +150,25 @@ export default {
       // Loop through the books and check if any have a return date in two days
       this.books.forEach((book) => {
         const returnDate = new Date(book.return);
+        if (returnDate <= currentDate) {
+        this.notifications.push(`Book '${book.title}' has a return date that has passed.`);
+      } else {
         const timeDifference = returnDate.getTime() - currentDate.getTime();
         const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
 
         if (daysDifference <= 2) {
           this.notifications.push(`Book '${book.title}' has a return date in ${daysDifference} days.`);
         }
+      }
       });
       this.notifications.forEach((notification) => {
         console.log(notification);
       });
     },
+    isReturnDatePassed(returnDate) {
+      const currentDate = new Date();
+      return new Date(returnDate) <= currentDate;
+    }    
   },
   created() {
     this.showNotifications(); // Call the method when the component is created
