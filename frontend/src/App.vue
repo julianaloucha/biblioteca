@@ -15,8 +15,11 @@
       <div class="container" v-if="loggedIn">
         <list ref="listMonitorias" />
       </div>
-      <div class="container" v-if="loggedInAdm">
-        <list-adm ref="listAdm" />
+      <div class="container" v-if="loggedInAdm && !showNewAdmPage && !showRegister">
+        <list-adm ref="listAdm" @go-to-new-adm="showNewAdmPage = true" />
+      </div>
+      <div class="container" v-if="showNewAdmPage">
+        <create-adm @go-back="goBack" />
       </div>
     </main>
   </div>
@@ -26,6 +29,7 @@
 import Login from "./components/Login.vue";
 import AdmLogin from "./components/AdmLogin.vue";
 import SignUp from "./components/SignUp.vue";
+import CreateAdm from "./components/CreateAdm.vue";
 import List from "./components/List.vue";
 import ListAdm from "./components/ListAdm.vue";
 
@@ -34,6 +38,7 @@ export default {
     Login,
     AdmLogin,
     SignUp,
+    CreateAdm,
     List,
     ListAdm,
   },
@@ -43,6 +48,7 @@ export default {
       loggedInAdm: false,
       showRegister: false,
       showAdm: false,
+      showNewAdmPage: false,
     };
   },
   methods: {
@@ -56,6 +62,14 @@ export default {
   },
     loginSuccessAdm(userId) {
     this.loggedInAdm = true;
+    this.$nextTick(() => {
+      console.log("next Tick" );
+      this.$refs.listAdm.loadUserMonitorias(userId);
+      this.$refs.listAdm.loadAllMonitorias();
+    });
+  },
+    goBack(userId) {
+    this.showNewAdmPage = false;
     this.$nextTick(() => {
       console.log("next Tick" );
       this.$refs.listAdm.loadUserMonitorias(userId);

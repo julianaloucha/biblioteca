@@ -115,7 +115,7 @@ export default {
         this.bookDetails.time = `${hours}:${minutes}`;
 
         // Add new QRCode
-        const qrCodeData = JSON.stringify(this.bookDetails.user_id);
+        const qrCodeData = JSON.stringify(this.bookDetails.user_id, this.bookDetails.isbn,this.bookDetails.date);
         this.bookDetails.qrcodeImage = await QRCode.toDataURL(qrCodeData);
         console.log("is this working?" + this.bookDetails.user_id)
 

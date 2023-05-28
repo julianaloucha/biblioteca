@@ -1,25 +1,26 @@
 <template>
 <main>
+  <button @click="goToNewAdmPage">Create New Administrator</button>
   <div class="row">
     <div id="monitorias-disponiveis" class="columnleft">
-        <h1>Monitorias Administrator</h1>
+      <h1>Monitorias Administrator</h1>
 
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>titulo</th>
-              <th>Autor</th>
-              <th>ISBN</th>
-            </tr>
-          </thead>
-          <tbody>  
-            <tr v-for="book in allBooks" :key="book._id">
-              <td>{{ book.title }}</td>
-              <td>{{ book.author }}</td>
-              <td>{{ book.isbn }}</td>
-            </tr>        
-          </tbody>
-        </table>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>titulo</th>
+            <th>Autor</th>
+            <th>ISBN</th>
+          </tr>
+        </thead>
+        <tbody>  
+          <tr v-for="book in allBooks" :key="book._id">
+            <td>{{ book.title }}</td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.isbn }}</td>
+          </tr>        
+        </tbody>
+      </table>
     </div>
     <div class="columnright">
       <h2>Oferecer Monitoria</h2>
@@ -129,7 +130,10 @@ export default {
       };
       reader.readAsDataURL(file);
     }
-  }
+  },
+  goToNewAdmPage() {
+    this.$emit('go-to-new-adm'); // Emit a custom event to the parent component (App.vue)
+  },
   },
 };
 </script>
