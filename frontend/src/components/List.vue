@@ -9,7 +9,9 @@
             <div class="monitoria-title">
               {{ book.title }}
               <br>
-              {{ book.description }}
+              {{ book.author }}
+              <br>
+              <img :src="book.image"  class="capa" />
               <br>
               <br>
               <button @click="showDetails(book)">Detalhes</button>
@@ -68,7 +70,7 @@
 </template>
 
 <script>
-import { getMonitorias, updateMonitoria, deleteMonitoria, getAllMonitorias } from "../api";
+import { getMonitorias, updateMonitoria, getAllMonitorias } from "../api";
 import QRCode from "qrcode";
 
 export default {
@@ -93,11 +95,6 @@ export default {
     async loadAllMonitorias() {
       this.allBooks = await getAllMonitorias();
     },
-    async deleteMonitoria(bookId) {
-      await deleteMonitoria(bookId);
-      this.books = this.books.filter((book) => book._id !== bookId);
-      this.loadAllMonitorias();
-    },
     showDetails(book) {
       this.bookDetails = book;
     },
@@ -118,8 +115,9 @@ export default {
         this.bookDetails.time = `${hours}:${minutes}`;
 
         // Add new QRCode
-        const qrCodeData = JSON.stringify(this.bookDetails);
+        const qrCodeData = JSON.stringify(this.bookDetails.user_id);
         this.bookDetails.qrcodeImage = await QRCode.toDataURL(qrCodeData);
+        console.log("is this working?" + this.bookDetails.user_id)
 
         await updateMonitoria(this.bookDetails._id, this.bookDetails);
         this.bookDetails = null;
@@ -278,6 +276,11 @@ th {
   color: red;
   font-weight: bold;
   margin-top: 1rem;
+}
+
+.capa {
+  width: 10rem;
+  margin: 0.5rem;
 }
 
 </style>

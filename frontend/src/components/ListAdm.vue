@@ -7,10 +7,9 @@
         <table class="table table-hover">
           <thead>
             <tr>
-              <th>title</th>
-              <th>Data</th>
-              <th>Horário</th>
-              <th>Local</th>
+              <th>titulo</th>
+              <th>Autor</th>
+              <th>ISBN</th>
             </tr>
           </thead>
           <tbody>  
@@ -18,7 +17,6 @@
               <td>{{ book.title }}</td>
               <td>{{ book.author }}</td>
               <td>{{ book.isbn }}</td>
-              <td>{{ book.description }}</td>
             </tr>        
           </tbody>
         </table>
@@ -34,7 +32,7 @@
         <button type="submit">Adicionar</button>
       </form>
       <ul>
-        <li v-for="book in books" :key="book._id">
+        <li v-for="book in allBooks" :key="book._id">
           <div class="monitoria-title">
             {{ book.title }}
           </div>
@@ -42,13 +40,7 @@
             {{ book.author }}
           </div>
           <div class="monitoria-title">
-            {{ book.isbn }}
-          </div>
-          <div class="monitoria-title">
-            {{ book.description }}
-          </div>
-          <div class="monitoria-title">
-            <img :src="book.image" />
+            <img :src="book.image"  class="capa" />
           </div>
           <div class="actions">
             <button @click="deleteMonitoria(book._id)">Excluir</button>
@@ -117,7 +109,7 @@ export default {
     },
     async deleteMonitoria(bookId) {
       await deleteMonitoria(bookId);
-      this.books = this.books.filter((book) => book._id !== bookId);
+      this.allBooks = this.allBooks.filter((book) => book._id !== bookId);
       this.loadAllMonitorias();
     },
     showUpdateForm(book) {
@@ -274,6 +266,11 @@ th {
   background-color: #103c5c;
   color: white;
   text-transform: capitalize;
+}
+
+.capa {
+  width: 10rem;
+  margin: 0.5rem;
 }
 
 </style>

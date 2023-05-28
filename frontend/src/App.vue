@@ -4,7 +4,7 @@
 <template>
   <div id="app">
     <header>
-      <img alt="Vue logo" src="./booklogo.png" height="50">
+      <img alt="Vue logo" src="./booklogo.png" height="50" class="logo">
       <h1>Biblioteca</h1>
       <button class="sair" @click="refreshPage">Sair</button>
     </header>
@@ -120,7 +120,7 @@ header {
   text-transform: uppercase;
 }
 
-img {
+.logo {
   margin-left: 2rem;
 }
 

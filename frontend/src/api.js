@@ -24,7 +24,7 @@ export async function getAllMonitorias() {
 }
 
 export async function createMonitoria(monitoria, userId) {
-  monitoria.user_id = userId;  // Adicione o user_id à tarefa
+  monitoria.user_id = null;  // Adicione o user_id à tarefa
   return fetchData(`${API_URL}/monitorias`, {
     method: "POST",
     headers: {
