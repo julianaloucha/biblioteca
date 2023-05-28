@@ -1,6 +1,9 @@
 <template>
   <main class="main">
-    <header>botões edit user {{ userId }}</header>
+    <header>
+      botões edit user {{ userId }}
+      <button class="notification-button" @click="showNotifications">Notifications</button>
+    </header>
     <div class="row">
       <div class="columnleft">
         <h2>Todos os livros</h2>
@@ -20,10 +23,6 @@
               <h3>Detalhes</h3>
               <div class="monitoria-title">
                 {{ bookDetails.title }}
-                <br>
-                {{ bookDetails.date }}
-                <br>
-                {{ bookDetails.time }}
                 <br>
                 {{ bookDetails.description }}
                 <br>
@@ -48,7 +47,7 @@
             <tr>
               <th>Título</th>
               <th>Data</th>
-              <th>Horário</th>
+              <th>Data Devolução</th>
               <th>QR Code</th>
             </tr>
           </thead>
@@ -56,7 +55,7 @@
             <tr v-for="book in books" :key="book._id">
               <td>{{ book.title }}</td>
               <td>{{ book.date }}</td>
-              <td>{{ book.time }}</td>
+              <td>{{ book.return }}</td>
               <td>
                 <img :src="book.qrcodeImage" alt="QR Code" />
               </td>
@@ -80,11 +79,12 @@ export default {
       allBooks: [],
       title: "",
       date: "",
-      time: "",
+      return: "",
       description: "",
       bookDetails: null,
       userId: null,
       qrcodeImage: null,
+      notifications: [], // Array to store notifications
     };
   },
   methods: {
@@ -109,15 +109,17 @@ export default {
         const day = String(today.getDate()).padStart(2, '0');
         this.bookDetails.date = `${year}-${month}-${day}`;
 
-        // Add current time to bookDetails.time
-        const hours = String(today.getHours()).padStart(2, '0');
-        const minutes = String(today.getMinutes()).padStart(2, '0');
-        this.bookDetails.time = `${hours}:${minutes}`;
+        //Add today's date + 5 days
+        const returnDate = new Date();
+        returnDate.setDate(returnDate.getDate() + 5);
+        const returnYear = returnDate.getFullYear();
+        const returnMonth = String(returnDate.getMonth() + 1).padStart(2, '0');
+        const returnDay = String(returnDate.getDate()).padStart(2, '0');
+        this.bookDetails.return = `${returnYear}-${returnMonth}-${returnDay}`;
 
         // Add new QRCode
         const qrCodeData = JSON.stringify(this.bookDetails.user_id, this.bookDetails.isbn,this.bookDetails.date);
         this.bookDetails.qrcodeImage = await QRCode.toDataURL(qrCodeData);
-        console.log("is this working?" + this.bookDetails.user_id)
 
         await updateMonitoria(this.bookDetails._id, this.bookDetails);
         this.bookDetails = null;
@@ -126,6 +128,28 @@ export default {
     },
     isReservationFull() {
       return this.books.length >= 3;
+    },
+    showNotifications() {
+      // Clear existing notifications
+      this.notifications = [];
+
+      // Get the current date
+      const currentDate = new Date();
+
+      // Loop through the books and check if any have a return date in two days
+      this.books.forEach((book) => {
+        const returnDate = new Date(book.return);
+        const timeDifference = returnDate.getTime() - currentDate.getTime();
+        const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+
+        if (daysDifference === 2) {
+          this.notifications.push(`Book '${book.title}' has a return date in two days.`);
+        }
+      });
+      // Display notifications in the console (you can modify this to suit your needs)
+      this.notifications.forEach((notification) => {
+        console.log(notification);
+      });
     },
   },
 };
