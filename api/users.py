@@ -25,6 +25,8 @@ def login_user():
     if db_user and check_password_hash(db_user['password'], user['password']):
         if db_user['status'] == 'waiting':
             return jsonify({'error': 'Waiting for approval'}), 401
+        elif db_user['status'] == 'suspended':
+                return jsonify({'error': 'User suspended'}), 401
         return jsonify({'result': 'Logged in successfully', 'user_id': str(db_user['_id'])}), 200
     return jsonify({'error': 'Invalid username or password'}), 401
 

@@ -3,9 +3,9 @@ const API_URL = "http://localhost:5000/api";
 
 async function fetchData(url, options) {
   const response = await fetch(url, options);
-  //const responseBody = await response.text(); //Falha no login
   if (!response.ok) {
-    throw new Error(` ${response.status}`);
+    const responseBody = await response.text();
+    throw new Error(`${responseBody} ${response.status}`);
   }
   return response.json();
 }
