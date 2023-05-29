@@ -17,13 +17,14 @@
         <div id="table-wrapper">
           <div id="table-scroll">
             <div class="fixTableHead">
-        <table class="table table-hover">
+        <table class="usertable">
           <thead>
             <tr>
               <th>Nome</th>
               <th>RA</th>
               <th>Curso</th>
               <th>Status</th>
+              <th></th>
               <th></th>
             </tr>
           </thead>
@@ -36,6 +37,7 @@
               <td v-if="user.status == 'waiting'"><button @click="approveUser(user)">Autorizar</button></td>
               <td v-if="user.status == 'approved'"><button @click="suspendUser(user)">Suspender</button></td>
               <td v-if="user.status != 'approved' && user.status != 'waiting'"><button @click="approveUser(user)">Retirar suspensão</button></td>
+              <td><button @click="deletarUser(user._id)">Deletar</button></td>
             </tr>        
           </tbody>
         </table> 
@@ -48,7 +50,7 @@
         <div id="table-wrapper">
           <div id="table-scroll">
             <div class="fixTableHead">
-        <table class="table table-hover">
+        <table class="usertable">
           <thead>
             <tr>
               <th>Título</th>
@@ -120,7 +122,7 @@
   </template>
   
   <script>
-  import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAllMonitorias, getUsers, updateUser } from "../api";
+  import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAllMonitorias, getUsers, updateUser, deleteUser } from "../api";
   
   export default {
     data() {
@@ -158,11 +160,12 @@
           // Check if today's date is greater than the return date
           const returnDate = new Date(book.return);
           const currentDate = new Date();
-          if (currentDate > returnDate) {
+          const suspensionDate = new Date(returnDate.getTime() + (5 * 24 * 60 * 60 * 1000));
+          if (currentDate > suspensionDate) {
             const user = this.users.find((user) => user._id === book.user_id);
             if (user) {
               // Add one month to the user's status
-              const newStatusDate = returnDate;
+              const newStatusDate = suspensionDate;
               newStatusDate.setMonth(newStatusDate.getMonth() + 1);
               user.status = newStatusDate.toISOString();
   
@@ -282,6 +285,11 @@
           console.log(notification);
         });
       },
+      async deletarUser(userId) {
+        await deleteUser(userId);
+        this.loadAllMonitorias();
+        this.loadUsers();
+      }
     },
     created() {
       this.showNotifications(); // Call the method when the component is created
@@ -302,6 +310,13 @@
     }
   #table-wrapper {
   position:relative;
+}
+.usertable {
+  text-align: center;
+}
+td:first-child {
+  text-align: left;
+  padding-left: 6px;
 }
 #table-scroll {
   height:400px;
@@ -524,9 +539,10 @@ header{
     background-color: red;
   }
   
-  .notification-box {
+.notification-box {
     position: absolute;
-    top: 30rem;
+    z-index: 999;
+    top: 19.5rem;
     right: 20px;
     width: 200px;
     background-color: #A9D3FF;

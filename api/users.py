@@ -45,3 +45,9 @@ def update(_id):
     updated.pop('_id', None)  # Remove o campo '_id' se estiver presente
     users_collection.update_one({'_id': ObjectId(_id)}, {'$set': updated})
     return jsonify(updated), 200
+
+# Deletar um user (D)
+@users_blueprint.route('/user/<_id>', methods=['DELETE'])
+def delete(_id):
+    users_collection.delete_one({'_id': ObjectId(_id)})
+    return jsonify({'result': 'User deleted'}), 200

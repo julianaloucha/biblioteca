@@ -346,7 +346,7 @@ th {
 
 .notification-box {
   position: absolute;
-  top: 10rem;
+  top: 19.5rem;
   right: 20px;
   width: 200px;
   background-color: #A9D3FF;

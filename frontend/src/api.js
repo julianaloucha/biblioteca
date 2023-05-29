@@ -75,6 +75,12 @@ export async function registerUser(user) {
   return response._id;
 }
 
+export async function deleteUser(userId) {
+  return fetchData(`${API_URL}/user/${userId}`, {
+    method: "DELETE",
+  });
+}
+
 export async function loginAdm(user) {
   const response = await fetchData(`${API_URL}/loginadm`, {
     method: "POST",
