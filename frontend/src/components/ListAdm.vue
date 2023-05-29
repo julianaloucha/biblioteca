@@ -1,6 +1,16 @@
 <template>
 <main>
-  <button @click="goToNewAdmPage">Create New Administrator</button>
+  <header>
+    botões edit user {{ userId }}
+    <button @click="goToNewAdmPage">Criar Novo Administrador</button>
+    <button class="notification-button" :class="{ 'has-notifications': notifications.length > 0 }" @click="toggleNotificationBox">{{ showNotificationBox ? 'Fechar' : 'Notificações' }}</button>
+  </header>
+    <div class="notification-box" v-show="showNotificationBox">
+      <h3>Notificações</h3>
+      <ul>
+        <li v-for="notification in notifications" :key="notification" class="notif">{{ notification }}</li>
+      </ul>
+    </div>
   <div class="row">
     <div id="monitorias-disponiveis" class="columnleft">
       <h1>Usuários</h1>
@@ -46,7 +56,7 @@
           <tr v-for="book in books" :key="book._id">
             <td>{{ book.title }}</td>
             <td>{{ book.isbn }}</td>
-            <td>{{ book.user_id }}</td>
+            <td>{{ book.userRA }}</td>
             <td>{{ book.return }}</td>
             <td>
               <img :src="book.qrcodeImage" alt="QR Code" />
@@ -114,6 +124,8 @@ export default {
       userId: null,
       imageData: null,
       userEdited: null,
+      notifications: [], // Array to store notifications
+      showNotificationBox: false, 
     };
   },
   methods: {
@@ -124,6 +136,15 @@ export default {
     async loadAllMonitorias() {
       this.allBooks = await getAllMonitorias();
       this.books = this.allBooks.filter(book => book.user_id !== null);
+
+      await this.loadUsers();
+      // Attach the user's RA to each book
+      this.books.forEach((book) => {
+        const user = this.users.find((user) => user._id === book.user_id);
+        book.userRA = user.ra;
+      });
+
+      this.showNotifications();
     },
     async loadUsers() {
       this.users = await getUsers();
@@ -176,6 +197,7 @@ export default {
       await updateMonitoria(book._id, book);
       this.loadUsers();
       this.loadAllMonitorias();
+      this.showNotifications();
     },
     handleImageUpload(event) {
       const file = event.target.files[0];
@@ -190,6 +212,37 @@ export default {
     goToNewAdmPage() {
       this.$emit('go-to-new-adm'); // Emit a custom event to the parent component (App.vue)
     },
+    toggleNotificationBox() {
+      this.showNotificationBox = !this.showNotificationBox;
+    },
+    showNotifications() {
+      // Clear existing notifications
+      this.notifications = [];
+
+      // Get the current date
+      const currentDate = new Date();
+
+      // Loop through the books and check if any have a return date in two days
+      this.books.forEach((book) => {
+        const returnDate = new Date(book.return);
+        if (returnDate <= currentDate) {
+        this.notifications.push(`Book '${book.title}' has a return date that has passed.`);
+      } else {
+        const timeDifference = returnDate.getTime() - currentDate.getTime();
+        const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+
+        if (daysDifference <= 2) {
+          this.notifications.push(`Book '${book.title}' has a return date in ${daysDifference} days.`);
+        }
+      }
+      });
+      this.notifications.forEach((notification) => {
+        console.log(notification);
+      });
+    },
+  },
+  created() {
+    this.showNotifications(); // Call the method when the component is created
   },
 };
 </script>
@@ -331,6 +384,39 @@ th {
 .capa {
   width: 10rem;
   margin: 0.5rem;
+}
+
+.has-notifications {
+  background-color: red;
+}
+
+.notification-box {
+  position: absolute;
+  top: 10rem;
+  right: 20px;
+  width: 200px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.notification-box h3 {
+  margin: 0 0 10px;
+}
+
+.notification-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.notification-box li {
+  margin-bottom: 5px;
+}
+
+.notif {
+  flex-basis: 100%;
 }
 
 </style>
