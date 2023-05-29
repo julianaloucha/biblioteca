@@ -142,7 +142,37 @@ export default {
       this.books.forEach((book) => {
         const user = this.users.find((user) => user._id === book.user_id);
         book.userRA = user.ra;
+
+        // Check if today's date is greater than the return date
+        const returnDate = new Date(book.return);
+        const currentDate = new Date();
+        if (currentDate > returnDate) {
+          const user = this.users.find((user) => user._id === book.user_id);
+          if (user) {
+            // Add one month to the user's status
+            const newStatusDate = returnDate;
+            newStatusDate.setMonth(newStatusDate.getMonth() + 1);
+            user.status = newStatusDate.toISOString();
+
+            // Format the date to have only year, month, and day
+            const formattedDate = newStatusDate.toISOString().split('T')[0];
+            user.status = formattedDate;
+
+            updateUser(user._id, user); // Update the user's status in the database
+          }
+        }
+
       });
+
+      this.users.forEach((user) => {
+        // Check if today's date is greater than or equal to the status date
+        const statusDate = new Date(user.status);
+        const currentDate = new Date();
+        if (currentDate >= statusDate) {
+          user.status = "approved";
+          updateUser(user._id, user); // Update the user's status in the database
+        }
+      })
 
       this.showNotifications();
     },
