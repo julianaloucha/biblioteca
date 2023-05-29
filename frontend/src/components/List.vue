@@ -171,7 +171,7 @@ export default {
         return new Date(book.return) <= currentDate;
       }
       return true
-    }    
+    }   
   },
   created() {
     this.showNotifications(); // Call the method when the component is created

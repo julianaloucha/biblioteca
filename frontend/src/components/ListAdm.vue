@@ -23,7 +23,7 @@
             <td>{{ user.status }}</td>
             <td v-if="user.status == 'waiting'"><button @click="approveUser(user)">Autorizar</button></td>
             <td v-if="user.status == 'approved'"><button @click="suspendUser(user)">Suspender</button></td>
-            <td v-if="user.status == 'suspended'"><button @click="approveUser(user)">Retirar suspensão</button></td>
+            <td v-if="user.status != 'approved' && user.status != 'waiting'"><button @click="approveUser(user)">Retirar suspensão</button></td>
           </tr>        
         </tbody>
       </table>
