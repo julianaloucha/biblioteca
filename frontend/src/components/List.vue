@@ -1,7 +1,6 @@
 <template>
   <main class="main">
-    <header>
-      botões edit user {{ userId }}
+    <header class="headernotif">
       <button class="notification-button" :class="{ 'has-notifications': notifications.length > 0 }" @click="toggleNotificationBox">{{ showNotificationBox ? 'Fechar' : 'Notificações' }}</button>
     </header>
     <div class="notification-box" v-show="showNotificationBox">
@@ -12,38 +11,11 @@
     </div>
     <div class="row">
       <div class="columnleft">
-        <h2>Todos os livros</h2>
-        <ul>
-          <li v-for="book in allBooks" :key="book._id">
-            <div class="monitoria-title">
-              {{ book.title }}
-              <br>
-              {{ book.author }}
-              <br>
-              <img :src="book.image"  class="capa" />
-              <br>
-              <br>
-              <button @click="showDetails(book)">Detalhes</button>
-            </div>
-            <div v-if="bookDetails && bookDetails._id === book._id" class="edit">
-              <h3>Detalhes</h3>
-              <div class="monitoria-title">
-                {{ bookDetails.title }}
-                <br>
-                {{ bookDetails.description }}
-                <br>
-                {{ bookDetails.user_id }}
-              </div>
-              <template v-if="!bookDetails.user_id && !isReservationFull() && isReturnDatePassed(book)">
-                <button @click="reserveBook()">Reservar</button>
-              </template>
-              <template v-else>
-                <button disabled class="reserved-button">Reservar</button>
-              </template>
-              <button type="button" @click="bookDetails = null">Fechar</button>
-            </div>
-          </li>
-        </ul>
+        <h2>Regras</h2>
+        <p>
+          - 5 dias com o livro
+          - 1 mês de suspensão
+        </p>
       </div>
       <div id="monitorias-disponiveis" class="columnright">
         <h1>Minhas Reservas</h1>
@@ -70,6 +42,40 @@
         </table>
         <p class=paragrafo v-if="isReservationFull()">Limite máximo de reservas atingido</p>
       </div>
+    </div>
+    <div class="todoslivros">
+      <h2>Todos os livros</h2>
+      <ul>
+        <li v-for="book in allBooks" :key="book._id">
+          <div class="monitoria-title">
+            {{ book.title }}
+            <br>
+            {{ book.author }}
+            <br>
+            <img :src="book.image"  class="capa" />
+            <br>
+            <br>
+            <button @click="showDetails(book)">Detalhes</button>
+          </div>
+          <div v-if="bookDetails && bookDetails._id === book._id" class="edit">
+            <h3>Detalhes</h3>
+            <div class="monitoria-title">
+              {{ bookDetails.title }}
+              <br>
+              {{ bookDetails.description }}
+              <br>
+              {{ bookDetails.user_id }}
+            </div>
+            <template v-if="!bookDetails.user_id && !isReservationFull() && isReturnDatePassed(book)">
+              <button @click="reserveBook()">Reservar</button>
+            </template>
+            <template v-else>
+              <button disabled class="reserved-button">Reservar</button>
+            </template>
+            <button type="button" @click="bookDetails = null">Fechar</button>
+          </div>
+        </li>
+      </ul>
     </div>
   </main>
 </template>
@@ -182,6 +188,13 @@ export default {
 <style scoped>
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+header{
+  background-color: #D1FAFF;
+  padding: 1rem;
+  text-align: center;
 }
 
 div {
@@ -189,62 +202,60 @@ div {
   flex-direction: column;
   align-items: left;
   padding: 0.2rem; 
-  font-family: Arial, sans-serif;
+  font-family:monospace;
   width: 100%;
 }
 
-h2, h3 {
-  color: #333;
+h1, h2, h3 {
+  color: #1F271B;
   margin-bottom: 1rem;
+  font-family:monospace;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  width: 75%;
-  margin-bottom: 1rem;
-}
-
-input {
-  flex-grow: 1;
+.notification-button{
+  font-family: monospace;
+  font-style: bold;
+  width: 10%;
   padding: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin: 0.5rem;
+  background-color: #0B4F6C;
+  color: #D1FAFF;
   border: none;
-  border-radius: 5px;
-}
-
-input {
-  flex-grow: 1;
-  padding: 0.5rem 0.5rem;
-  margin-bottom: 0.5rem;
-  border: 3px solid #ccc;
-  border-radius: 5px;
-}
-
-button {
-  padding: 0.5rem 1rem;
-  background-color: #103c5c;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
-  margin-bottom: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+.notification-button:hover {
+  background-color: #A9D3FF;
+  color: #1F271B;
+}
+button{
+  font-family: monospace;
+  font-style: bold;
+  width: 80%;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  background-color: #0B4F6C;
+  color: #D1FAFF;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
 
 button:hover {
-  background-color: #14181d;
-  color: white;
-  cursor: pointer;
+  background-color: #D1FAFF;
+    color: #1F271B;
 }
 
 .reserved-button {
-  background-color: #ccc;
+  background-color: #847577;
   cursor: default;
 }
 
 .reserved-button:hover {
-  background-color: #ccc;
+  background-color: #847577;
+  color: #D1FAFF;
 }
 
 ul {
@@ -255,17 +266,17 @@ ul {
   justify-content: start;
   align-items: flex-start;
   width: 100%;
-  gap: 1rem;
+  gap: 4rem;
 }
 
 li {
   display: flex;
   flex-direction:row;
-  background-color: #f0f0f0;
+  background-color: #A9D3FF;
   padding: 0px;
   border-radius: 5px;
   margin-bottom: 1px;
-  flex-basis: 40%; 
+  flex-basis: 16%; 
 }
 
 .monitoria-title {
@@ -286,7 +297,7 @@ li:nth-child(3n) {
 }
 
 li:nth-child(odd) {
-  background-color: #e6e6e6;
+  background-color: #A9D3FF;
 }
 
 .row {
@@ -312,18 +323,16 @@ li:nth-child(odd) {
 table {
   margin-top: 2rem;
   margin-right: 2rem;
+  background-color: #A9D3FF;
+  border-radius: 5px;
+  padding: 2rem;
 }
 
 th {
-  background-color: #103c5c;
-  color: white;
+  background-color: #0B4F6C;
+  color: #D1FAFF;
   text-transform: capitalize;
-}
-
-.paragrafo{
-  color: red;
-  font-weight: bold;
-  margin-top: 1rem;
+  border-radius: 5px;
 }
 
 .capa {
@@ -340,9 +349,9 @@ th {
   top: 10rem;
   right: 20px;
   width: 200px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
+  background-color: #A9D3FF;
   padding: 10px;
+  border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -362,6 +371,14 @@ th {
 
 .notif {
   flex-basis: 100%;
+}
+
+.headernotif {
+  justify-content: right;
+}
+
+.todoslivros {
+  margin-left: 2rem;
 }
 
 </style>

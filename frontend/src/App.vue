@@ -4,8 +4,8 @@
 <template>
   <div id="app">
     <header>
-      <img alt="Vue logo" src="./booklogo.png" height="50" class="logo">
-      <h1>Biblioteca</h1>
+      <p class="spacelogo">.......Sair.</p>
+      <img alt="Vue logo" src="./BIBLIOTECA.png" height="200" class="logo">
       <button class="sair" @click="refreshPage">Sair</button>
     </header>
     <main>
@@ -91,24 +91,17 @@ export default {
   margin: 0;
   padding: 0;
 }
-
+body{
+  background-color: #D1FAFF;
+}
 .sair {
-  background-color: white;
-  color: #103c5c;
+  background-color: #0B4F6C;
+  color: #D1FAFF;
   margin-right: 2rem;
   padding: 0.5rem;
-  border-radius: 0.7rem;
-  font-weight: bolder;
+  border-radius: 15px;
+  font-family: monospace;
 }
-
-body {
-  font-family: Arial, sans-serif;
-  background-color: #ffffff;
-  opacity: 1;
-  height: 100vh;
-  width: 100vw;
-}
-
 .container {
   display: flex;
   flex-direction: row;
@@ -130,19 +123,13 @@ header {
   justify-content: space-between;
   align-items: center;
   width: 100vw;
-  background-color: purple;
   padding: 20px 0;
-  color: white;
   text-transform: uppercase;
+  font-family: monospace;
 }
 
 .logo {
-  margin-left: 2rem;
-}
-
-h1 {
-  margin: 0;
-  font-size: 1.5rem;
+  margin-left: 0rem;
 }
 
 main {
@@ -152,6 +139,10 @@ main {
   width: 100%;
   /*padding: 1rem;
   margin-top: 0.5rem;*/
+}
+
+.spacelogo{
+  color: #D1FAFF;
 }
 
 </style>
