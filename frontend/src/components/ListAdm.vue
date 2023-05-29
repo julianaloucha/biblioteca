@@ -89,8 +89,12 @@
         <input type="file" @change="handleImageUpload" accept="image/*" placeholder="Imagem da capa" required />
         <button class="adc" type="submit">Adicionar</button>
       </form>
+      <h2>Livros</h2>
+      <div class="search-bar">
+        <input type="text" v-model="searchTerm" placeholder="Pesquisar livros" />
+      </div>
       <ul>
-        <li v-for="book in allBooks" :key="book._id">
+        <li v-for="book in filteredBooks" :key="book._id">
           <div class="monitoria-title">
             {{ book.title }}
           </div>
@@ -119,195 +123,207 @@
       </ul>
     </div>
   </main>
-  </template>
-  
-  <script>
-  import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAllMonitorias, getUsers, updateUser, deleteUser } from "../api";
-  
-  export default {
-    data() {
-      return {
-        users: [],
-        books: [],
-        allBooks: [],
-        title: "",
-        author: "",
-        isbn: "",
-        description: "",
-        beingEdited: null,
-        userId: null,
-        imageData: null,
-        userEdited: null,
-        notifications: [], // Array to store notifications
-        showNotificationBox: false, 
-      };
+</template>
+
+<script>
+import { getMonitorias, createMonitoria, updateMonitoria, deleteMonitoria, getAllMonitorias, getUsers, updateUser, deleteUser } from "../api";
+
+export default {
+  data() {
+    return {
+      users: [],
+      books: [],
+      allBooks: [],
+      title: "",
+      author: "",
+      isbn: "",
+      description: "",
+      beingEdited: null,
+      userId: null,
+      imageData: null,
+      userEdited: null,
+      notifications: [], // Array to store notifications
+      showNotificationBox: false, 
+      searchTerm: "",
+    };
+  },
+  methods: {
+    async loadUserMonitorias(userId) {
+      this.userId = userId;
+      this.books = await getMonitorias(userId);
     },
-    methods: {
-      async loadUserMonitorias(userId) {
-        this.userId = userId;
-        this.books = await getMonitorias(userId);
-      },
-      async loadAllMonitorias() {
-        this.allBooks = await getAllMonitorias();
-        this.books = this.allBooks.filter(book => book.user_id !== null);
-  
-        await this.loadUsers();
-        // Attach the user's RA to each book
-        this.books.forEach((book) => {
+    async loadAllMonitorias() {
+      this.allBooks = await getAllMonitorias();
+      this.books = this.allBooks.filter(book => book.user_id !== null);
+
+      await this.loadUsers();
+      // Attach the user's RA to each book
+      this.books.forEach((book) => {
+        const user = this.users.find((user) => user._id === book.user_id);
+        book.userRA = user.ra;
+
+        // Check if today's date is greater than the return date
+        const returnDate = new Date(book.return);
+        const currentDate = new Date();
+        const suspensionDate = new Date(returnDate.getTime() + (5 * 24 * 60 * 60 * 1000));
+        if (currentDate > suspensionDate) {
           const user = this.users.find((user) => user._id === book.user_id);
-          book.userRA = user.ra;
-  
-          // Check if today's date is greater than the return date
-          const returnDate = new Date(book.return);
-          const currentDate = new Date();
-          const suspensionDate = new Date(returnDate.getTime() + (5 * 24 * 60 * 60 * 1000));
-          if (currentDate > suspensionDate) {
-            const user = this.users.find((user) => user._id === book.user_id);
-            if (user) {
-              // Add one month to the user's status
-              const newStatusDate = suspensionDate;
-              newStatusDate.setMonth(newStatusDate.getMonth() + 1);
-              user.status = newStatusDate.toISOString();
-  
-              // Format the date to have only year, month, and day
-              const formattedDate = newStatusDate.toISOString().split('T')[0];
-              user.status = formattedDate;
-  
-              updateUser(user._id, user); // Update the user's status in the database
-            }
-          }
-  
-        });
-  
-        this.users.forEach((user) => {
-          // Check if today's date is greater than or equal to the status date
-          const statusDate = new Date(user.status);
-          const currentDate = new Date();
-          if (currentDate >= statusDate) {
-            user.status = "approved";
+          if (user) {
+            // Add one month to the user's status
+            const newStatusDate = suspensionDate;
+            newStatusDate.setMonth(newStatusDate.getMonth() + 1);
+            user.status = newStatusDate.toISOString();
+
+            // Format the date to have only year, month, and day
+            const formattedDate = newStatusDate.toISOString().split('T')[0];
+            user.status = formattedDate;
+
             updateUser(user._id, user); // Update the user's status in the database
           }
-        })
-  
-        this.showNotifications();
-      },
-      async loadUsers() {
-        this.users = await getUsers();
-      },
-      async addMonitoria() {
-        const book = {
-          title: this.title,
-          author: this.author,
-          isbn: this.isbn,
-          description: this.description,
-          image: this.imageData, // Store the image data in the book.image field
-        };
-        const created = await createMonitoria(book, this.userId);
-        this.books.push(created);
-        this.title = "";
-        this.author = "";
-        this.isbn = "";
-        this.description = "";
-        this.imageData = null; // Reset the imageData after submission
-        this.loadAllMonitorias();
-      },
-      async deleteMonitoria(bookId) {
-        await deleteMonitoria(bookId);
-        this.allBooks = this.allBooks.filter((book) => book._id !== bookId);
-        this.loadAllMonitorias();
-      },
-      showUpdateForm(book) {
-        this.beingEdited = book;
-      },
-      async updateAndHide() {
-        await updateMonitoria(this.beingEdited._id, this.beingEdited);
-        this.beingEdited = null;
-        this.loadAllMonitorias();
-      },
-      async approveUser(user) {
-        user.status = "approved"
-        await updateUser(user._id, user);
-        this.loadUsers();
-      },
-      async suspendUser(user) {
-        user.status = "suspended";
-        await updateUser(user._id, user);
-        this.loadUsers();
-      },
-      async returned(book) {
-        book.user_id = null;
-        book.date = null;
-        book.return = null;
-        book.qrcodeImage = null;
-        await updateMonitoria(book._id, book);
-        this.loadUsers();
-        this.loadAllMonitorias();
-        this.showNotifications();
-      },
-      handleImageUpload(event) {
-        const file = event.target.files[0];
-        if (file) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            this.imageData = e.target.result;
-          };
-          reader.readAsDataURL(file);
         }
-      },
-      goToNewAdmPage() {
-        this.$emit('go-to-new-adm'); // Emit a custom event to the parent component (App.vue)
-      },
-      toggleNotificationBox() {
-        this.showNotificationBox = !this.showNotificationBox;
-      },
-      showNotifications() {
-        // Clear existing notifications
-        this.notifications = [];
-  
-        // Get the current date
+
+      });
+
+      this.users.forEach((user) => {
+        // Check if today's date is greater than or equal to the status date
+        const statusDate = new Date(user.status);
         const currentDate = new Date();
-  
-        // Loop through the books and check if any have a return date in two days
-        this.books.forEach((book) => {
-          const returnDate = new Date(book.return);
-          if (returnDate <= currentDate) {
-          this.notifications.push(`Book '${book.title}' has a return date that has passed.`);
-        } else {
-          const timeDifference = returnDate.getTime() - currentDate.getTime();
-          const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-  
-          if (daysDifference <= 2) {
-            this.notifications.push(`Book '${book.title}' has a return date in ${daysDifference} days.`);
-          }
+        if (currentDate >= statusDate) {
+          user.status = "approved";
+          updateUser(user._id, user); // Update the user's status in the database
         }
-        });
-        this.notifications.forEach((notification) => {
-          console.log(notification);
-        });
-      },
-      async deletarUser(userId) {
-        await deleteUser(userId);
-        this.loadAllMonitorias();
-        this.loadUsers();
+      })
+
+      this.showNotifications();
+    },
+    async loadUsers() {
+      this.users = await getUsers();
+    },
+    async addMonitoria() {
+      const book = {
+        title: this.title,
+        author: this.author,
+        isbn: this.isbn,
+        description: this.description,
+        image: this.imageData, // Store the image data in the book.image field
+      };
+      const created = await createMonitoria(book, this.userId);
+      this.books.push(created);
+      this.title = "";
+      this.author = "";
+      this.isbn = "";
+      this.description = "";
+      this.imageData = null; // Reset the imageData after submission
+      this.loadAllMonitorias();
+    },
+    async deleteMonitoria(bookId) {
+      await deleteMonitoria(bookId);
+      this.allBooks = this.allBooks.filter((book) => book._id !== bookId);
+      this.loadAllMonitorias();
+    },
+    showUpdateForm(book) {
+      this.beingEdited = book;
+    },
+    async updateAndHide() {
+      await updateMonitoria(this.beingEdited._id, this.beingEdited);
+      this.beingEdited = null;
+      this.loadAllMonitorias();
+    },
+    async approveUser(user) {
+      user.status = "approved"
+      await updateUser(user._id, user);
+      this.loadUsers();
+    },
+    async suspendUser(user) {
+      user.status = "suspended";
+      await updateUser(user._id, user);
+      this.loadUsers();
+    },
+    async returned(book) {
+      book.user_id = null;
+      book.date = null;
+      book.return = null;
+      book.qrcodeImage = null;
+      await updateMonitoria(book._id, book);
+      this.loadUsers();
+      this.loadAllMonitorias();
+      this.showNotifications();
+    },
+    handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.imageData = e.target.result;
+        };
+        reader.readAsDataURL(file);
       }
     },
-    created() {
-      this.showNotifications(); // Call the method when the component is created
+    goToNewAdmPage() {
+      this.$emit('go-to-new-adm'); // Emit a custom event to the parent component (App.vue)
     },
-  };
-  </script>
-  
-    
-  <style scoped>
-  * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  }
-    .fixTableHead thead th {
-      position: sticky;
-      top: 0;
+    toggleNotificationBox() {
+      this.showNotificationBox = !this.showNotificationBox;
+    },
+    showNotifications() {
+      // Clear existing notifications
+      this.notifications = [];
+
+      // Get the current date
+      const currentDate = new Date();
+
+      // Loop through the books and check if any have a return date in two days
+      this.books.forEach((book) => {
+        const returnDate = new Date(book.return);
+        if (returnDate <= currentDate) {
+        this.notifications.push(`Book '${book.title}' has a return date that has passed.`);
+      } else {
+        const timeDifference = returnDate.getTime() - currentDate.getTime();
+        const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+
+        if (daysDifference <= 2) {
+          this.notifications.push(`Book '${book.title}' has a return date in ${daysDifference} days.`);
+        }
+      }
+      });
+      this.notifications.forEach((notification) => {
+        console.log(notification);
+      });
+    },
+    async deletarUser(userId) {
+      await deleteUser(userId);
+      this.loadAllMonitorias();
+      this.loadUsers();
     }
+  },
+  created() {
+    this.showNotifications(); // Call the method when the component is created
+  },
+  computed: {
+    filteredBooks() {
+      const searchTerm = this.searchTerm.toLowerCase();
+      return this.allBooks.filter(
+        (book) =>
+          book.title.toLowerCase().includes(searchTerm) ||
+          book.author.toLowerCase().includes(searchTerm) ||
+          book.isbn.toLowerCase().includes(searchTerm)
+      );
+    },
+  },
+};
+</script>
+
+  
+<style scoped>
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+}
+  .fixTableHead thead th {
+    position: sticky;
+    top: 0;
+  }
   #table-wrapper {
   position:relative;
 }
@@ -472,7 +488,7 @@ header{
     padding: 0px;
     border-radius: 5px;
     margin-bottom: 1px;
-    flex-basis: 15%; 
+    flex-basis: 18%; 
   }
   
   .monitoria-title {

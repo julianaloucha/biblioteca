@@ -44,9 +44,12 @@
       </div>
     </div>
     <div class="todoslivros">
-      <h2>Todos os livros</h2>
+      <h2>Livros</h2>
+      <div class="search-bar">
+        <input class="barra" type="text" v-model="searchTerm" placeholder="Pesquisar livros" />
+      </div>
       <ul>
-        <li v-for="book in allBooks" :key="book._id">
+        <li v-for="book in filteredBooks" :key="book._id">
           <div class="monitoria-title">
             {{ book.title }}
             <br>
@@ -98,6 +101,7 @@ export default {
       qrcodeImage: null,
       notifications: [], // Array to store notifications
       showNotificationBox: false, 
+      searchTerm: "",
     };
   },
   methods: {
@@ -182,6 +186,17 @@ export default {
   created() {
     this.showNotifications(); // Call the method when the component is created
   },
+    computed: {
+      filteredBooks() {
+        const searchTerm = this.searchTerm.toLowerCase();
+        return this.allBooks.filter(
+          (book) =>
+            book.title.toLowerCase().includes(searchTerm) ||
+            book.author.toLowerCase().includes(searchTerm) ||
+            book.isbn.toLowerCase().includes(searchTerm)
+        );
+      },
+    },
 };
 </script>
   
@@ -379,6 +394,12 @@ th {
 
 .todoslivros {
   margin-left: 2rem;
+}
+
+.search-bar{
+  padding-right: 5rem;
+  padding-bottom: 3rem;
+  height: 2rem;
 }
 
 </style>
