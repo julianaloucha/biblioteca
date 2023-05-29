@@ -3,7 +3,7 @@
   <button @click="goToNewAdmPage">Create New Administrator</button>
   <div class="row">
     <div id="monitorias-disponiveis" class="columnleft">
-      <h1>Monitorias Administrator</h1>
+      <h1>Usuários</h1>
 
       <table class="table table-hover">
         <thead>
@@ -29,17 +29,43 @@
       </table>
     </div>
     <div class="columnright">
-      <h2>Cadastrar novo livro</h2>
-      <form @submit.prevent="addMonitoria">
-        <input type="text" v-model="title" placeholder="Título do livro" required />
-        <input type="text" v-model="author" placeholder="Autor" required />
-        <input type="text" v-model="isbn" placeholder="ISBN" required />
-        <input type="text" v-model="description" placeholder="Descrição" required />
-        <input type="file" @change="handleImageUpload" accept="image/*" placeholder="Imagem da capa" required />
-        <button type="submit">Adicionar</button>
-      </form>
+      <h1>Livros reservados</h1>
+
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>ISBN</th>
+            <th>Aluno</th>
+            <th>Devolução</th>
+            <th>QRCode</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>  
+          <tr v-for="book in books" :key="book._id">
+            <td>{{ book.title }}</td>
+            <td>{{ book.isbn }}</td>
+            <td>{{ book.user_id }}</td>
+            <td>{{ book.return }}</td>
+            <td>
+              <img :src="book.qrcodeImage" alt="QR Code" />
+            </td>
+            <td><button @click="returned(book)">Devolvido</button></td>
+          </tr>        
+        </tbody>
+      </table>
     </div>
   </div>
+    <h2>Cadastrar novo livro</h2>
+    <form @submit.prevent="addMonitoria">
+      <input type="text" v-model="title" placeholder="Título do livro" required />
+      <input type="text" v-model="author" placeholder="Autor" required />
+      <input type="text" v-model="isbn" placeholder="ISBN" required />
+      <input type="text" v-model="description" placeholder="Descrição" required />
+      <input type="file" @change="handleImageUpload" accept="image/*" placeholder="Imagem da capa" required />
+      <button type="submit">Adicionar</button>
+    </form>
   <ul>
     <li v-for="book in allBooks" :key="book._id">
       <div class="monitoria-title">
@@ -97,6 +123,7 @@ export default {
     },
     async loadAllMonitorias() {
       this.allBooks = await getAllMonitorias();
+      this.books = this.allBooks.filter(book => book.user_id !== null);
     },
     async loadUsers() {
       this.users = await getUsers();
@@ -132,16 +159,23 @@ export default {
       this.loadAllMonitorias();
     },
     async approveUser(user) {
-      console.log("userUpdate: " + user.name);
       user.status = "approved"
       await updateUser(user._id, user);
       this.loadUsers();
     },
     async suspendUser(user) {
-      console.log("userUpdate: " + user.name);
-      user.status = "suspended"
+      user.status = "suspended";
       await updateUser(user._id, user);
       this.loadUsers();
+    },
+    async returned(book) {
+      book.user_id = null;
+      book.date = null;
+      book.return = null;
+      book.qrcodeImage = null;
+      await updateMonitoria(book._id, book);
+      this.loadUsers();
+      this.loadAllMonitorias();
     },
     handleImageUpload(event) {
       const file = event.target.files[0];

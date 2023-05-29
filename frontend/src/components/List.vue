@@ -2,10 +2,10 @@
   <main class="main">
     <header>
       botões edit user {{ userId }}
-      <button class="notification-button" @click="toggleNotificationBox">{{ showNotificationBox ? 'Hide Notifications' : 'Show Notifications' }}</button>
+      <button class="notification-button" :class="{ 'has-notifications': notifications.length > 0 }" @click="toggleNotificationBox">{{ showNotificationBox ? 'Fechar' : 'Notificações' }}</button>
     </header>
     <div class="notification-box" v-show="showNotificationBox">
-      <h3>Notifications</h3>
+      <h3>Notificações</h3>
       <ul>
         <li v-for="notification in notifications" :key="notification" class="notif">{{ notification }}</li>
       </ul>
@@ -329,6 +329,10 @@ th {
 .capa {
   width: 10rem;
   margin: 0.5rem;
+}
+
+.has-notifications {
+  background-color: red;
 }
 
 .notification-box {
