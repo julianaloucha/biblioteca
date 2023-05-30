@@ -11,8 +11,10 @@
     </div>
     <div class="row">
       <div class="columnleft">
-        <h2>Regras</h2>
+        <h1>Regras</h1>
         <p>
+          <br>
+          <br>
           - O livro deve ser devolvido 5 dias após a reserva
           <br>
           - O usuário que atrasar em 5 dias a devolução do livro será suspenso por 1 mês 
@@ -55,7 +57,7 @@
       </div>
     </div>
     <div class="todoslivros">
-      <h2>Livros</h2>
+      <h1>Livros</h1>
       <div class="search-bar">
         <input class="barra" type="text" v-model="searchTerm" placeholder="Pesquisar livros" />
       </div>
@@ -236,6 +238,7 @@ h1, h2, h3 {
   color: #1F271B;
   margin-bottom: 1rem;
   font-family:monospace;
+  padding-left: 1rem;
 }
 
 .notification-button{
@@ -411,10 +414,6 @@ th {
   padding-right: 5rem;
   padding-bottom: 3rem;
   height: 2rem;
-}
-
-h2 {
-  padding-left: 1rem;
 }
 
 p {

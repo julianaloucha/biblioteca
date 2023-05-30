@@ -106,7 +106,7 @@
             <img :src="book.image"  class="capa" />
           </div>
           <div class="actions">
-            <button class="delete" @click="deleteMonitoria(book._id)">Excluir</button>
+            <button class="delete-button" @click="deleteMonitoria(book._id)">Excluir</button>
             <button class="novo" @click="showUpdateForm(book)">Atualizar</button>
           </div>
           <div v-if="beingEdited && beingEdited._id === book._id" class="edit">
@@ -220,9 +220,11 @@ export default {
       this.loadAllMonitorias();
     },
     async deleteMonitoria(bookId) {
-      await deleteMonitoria(bookId);
-      this.allBooks = this.allBooks.filter((book) => book._id !== bookId);
-      this.loadAllMonitorias();
+      if (confirm("Tem certeza de que deseja deletar esse livro?")) {
+        await deleteMonitoria(bookId);
+        this.allBooks = this.allBooks.filter((book) => book._id !== bookId);
+        this.loadAllMonitorias();
+      }
     },
     showUpdateForm(book) {
       this.beingEdited = book;
@@ -279,13 +281,13 @@ export default {
       this.books.forEach((book) => {
         const returnDate = new Date(book.return);
         if (returnDate <= currentDate) {
-        this.notifications.push(`Book '${book.title}' has a return date that has passed.`);
+        this.notifications.push(`A data de devolução do livro '${book.title}' passou.`);
       } else {
         const timeDifference = returnDate.getTime() - currentDate.getTime();
         const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
 
         if (daysDifference <= 2) {
-          this.notifications.push(`Book '${book.title}' has a return date in ${daysDifference} days.`);
+          this.notifications.push(`O livro '${book.title}' deve ser devolvido em ${daysDifference} dias.`);
         }
       }
       });
@@ -294,9 +296,11 @@ export default {
       });
     },
     async deletarUser(userId) {
-      await deleteUser(userId);
-      this.loadAllMonitorias();
-      this.loadUsers();
+      if (confirm("Tem certeza que deseja deletar esse usuário?")) {
+        await deleteUser(userId);
+        this.loadAllMonitorias();
+        this.loadUsers();
+      }
     }
   },
   created() {
@@ -361,7 +365,7 @@ td:first-child {
 
 }
 #table-wrapper table {
-  width:100%;
+  width: auto;
 }
 header{
   background-color: #D1FAFF;
@@ -444,7 +448,7 @@ header{
     background-color: #A9D3FF;
     color: #1F271B;
   }
-  .delete{
+  .delete-button{
     background-color: #0B4F6C;
     color: #D1FAFF;
     border: none;
@@ -535,6 +539,7 @@ header{
   .row {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: flex-start;
   }
   
