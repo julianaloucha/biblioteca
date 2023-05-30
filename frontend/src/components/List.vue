@@ -13,8 +13,19 @@
       <div class="columnleft">
         <h2>Regras</h2>
         <p>
-          - 5 dias com o livro
-          - 1 mês de suspensão
+          - O livro deve ser devolvido 5 dias após a reserva
+          <br>
+          - O usuário que atrasar em 5 dias a devolução do livro será suspenso por 1 mês 
+          <br>
+          - O usuário que danificar o livro será suspenso
+          <br>
+          - O QRCode gerado no momento da reserva deve ser apresentado para a retirada
+          <br>
+          - A data de devolução estã marcada na tabela ao lado
+          <br>
+          - O usuário receberá uma notificação 2 dias antes do dia da devolução
+          <br>
+          - Para reservar novamente o livro, falar diretamente com o bibliotecário responsável
         </p>
       </div>
       <div id="monitorias-disponiveis" class="columnright">
@@ -400,6 +411,14 @@ th {
   padding-right: 5rem;
   padding-bottom: 3rem;
   height: 2rem;
+}
+
+h2 {
+  padding-left: 1rem;
+}
+
+p {
+  padding-left: 2rem;
 }
 
 </style>

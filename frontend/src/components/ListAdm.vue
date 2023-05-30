@@ -13,7 +13,7 @@
     <div class="row">
       <div id="monitorias-disponiveis" class="columnleft">
         <h1>Usuários</h1>
-
+        <input type="text" v-model="searchUserTerm" placeholder="Pesquisar Usuário" />
         <div id="table-wrapper">
           <div id="table-scroll">
             <div class="fixTableHead">
@@ -29,7 +29,7 @@
             </tr>
           </thead>
           <tbody>  
-            <tr v-for="user in users" :key="user._id">
+            <tr v-for="user in filteredUsers" :key="user._id">
               <td>{{ user.name }}</td>
               <td>{{ user.ra }}</td>
               <td>{{ user.curso }}</td>
@@ -47,6 +47,7 @@
   </div>
       <div class="columnright">
         <h1>Livros reservados</h1>
+        <input type="text" v-model="searchReservadosTerm" placeholder="Pesquisar" />
         <div id="table-wrapper">
           <div id="table-scroll">
             <div class="fixTableHead">
@@ -62,7 +63,7 @@
             </tr>
           </thead>
           <tbody>  
-            <tr v-for="book in books" :key="book._id">
+            <tr v-for="book in filteredReservados" :key="book._id">
               <td>{{ book.title }}</td>
               <td>{{ book.isbn }}</td>
               <td>{{ book.userRA }}</td>
@@ -145,6 +146,8 @@ export default {
       notifications: [], // Array to store notifications
       showNotificationBox: false, 
       searchTerm: "",
+      searchUserTerm: "",
+      searchReservadosTerm: "",
     };
   },
   methods: {
@@ -307,6 +310,24 @@ export default {
           book.title.toLowerCase().includes(searchTerm) ||
           book.author.toLowerCase().includes(searchTerm) ||
           book.isbn.toLowerCase().includes(searchTerm)
+      );
+    },
+    filteredUsers() {
+      const searchUserTerm = this.searchUserTerm.toLowerCase();
+      return this.users.filter((user) =>
+        user.ra.toString().includes(searchUserTerm) ||
+        user.name.toLowerCase().includes(searchUserTerm) ||
+        user.status.toLowerCase().includes(searchUserTerm) ||
+        user.curso.toLowerCase().includes(searchUserTerm)
+      );
+    },
+    filteredReservados() {
+      const searchReservadosTerm = this.searchReservadosTerm.toLowerCase();
+      return this.books.filter((book) =>
+        book.userRA.toString().includes(searchReservadosTerm) ||
+        book.title.toLowerCase().includes(searchReservadosTerm) ||
+        book.isbn.toLowerCase().includes(searchReservadosTerm) ||
+        book.return.toLowerCase().includes(searchReservadosTerm)
       );
     },
   },
